@@ -5,7 +5,7 @@ import { SEARCH_CITY, ADD_FAVORITE, DELETE_FAVORITE } from "./types";
 import history from "../history";
 
 const API_KEY = "WLrP8SA2RHTjED3NWdTfXOG1MbwpQVWf"
-const BASE_URL = "http://dataservice.accuweather.com";
+const BASE_URL = "https://dataservice.accuweather.com";
 
 //const generateUrl = path => `${BASE_URL}/${path}`;
 
