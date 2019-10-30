@@ -1,7 +1,7 @@
 //actions/index.js
 
 import axios from "axios";
-import { SEARCH_CITY, ADD_FAVORITE, DELETE_FAVORITE } from "./types";
+import { SEARCH_CITY, ADD_FAVORITE, DELETE_FAVORITE, UPDATE_CITY} from "./types";
 import history from "../history";
 
 const API_KEY = "WLrP8SA2RHTjED3NWdTfXOG1MbwpQVWf"
@@ -30,8 +30,30 @@ export const searchByCity = ({ city }) => async dispatch => {
     })
     const newItem = { today:today.data[0], city: autocomplete.data[0], fiveDays: fiveDays.data };
 
-    console.log(today.data);
     dispatch({ type: SEARCH_CITY, payload: newItem });
+  } catch (e) {
+    console.error(e);
+  }
+};
+
+export const searchByPos = city => async dispatch => {
+  try {
+    const today = await axios.get(`${BASE_URL}/currentconditions/v1/${city.Key}`, {
+      params: {
+        apikey: API_KEY
+      }
+    })
+    const fiveDays = await axios.get(`${BASE_URL}/forecasts/v1/daily/5day/${city.Key}`, {
+      params: {
+        apikey: API_KEY,
+        metric: true
+      }
+    })
+    const newItem = { today:today.data[0], city, fiveDays: fiveDays.data };
+
+    console.log(newItem);
+    dispatch({ type: UPDATE_CITY, payload: newItem });
+    history.push('/');
   } catch (e) {
     console.error(e);
   }

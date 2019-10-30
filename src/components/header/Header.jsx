@@ -5,11 +5,18 @@ import { Menu, Icon } from 'semantic-ui-react'
 import { Link} from 'react-router-dom';
 import history from "../../history";
 
+const siteHeader  = {
+  height: "40px",
+  position: 'fixed',
+  top: 0,
+  zIndex: 100
+}
+
 const Header = () => {
   const [active, setActive] = useState('');
 
   return (
-    <Menu inverted attached='top'>
+    <Menu style={siteHeader} inverted attached='top'>
       <Link to="/">
         <Menu.Item>
           <Icon name='cloud' />

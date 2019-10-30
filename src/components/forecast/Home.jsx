@@ -1,7 +1,8 @@
-import React from 'react';
+//components/forcast/Home
+
+import React,{useState} from 'react';
 import Forecast from './Forecast';
 import Search from './Search';
-import { Container, Grid } from 'semantic-ui-react';
 
 const Home = () => {
   return (

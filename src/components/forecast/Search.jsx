@@ -47,9 +47,7 @@ class Search extends React.Component {
   };
 
   render() {
-
     return (
-
       <>
         <Header as="h2" color="blue" textAlign="center">
           search city forecast
@@ -59,13 +57,13 @@ class Search extends React.Component {
           style={{ height: "100%" }}
           verticalAlign="middle"
         >
-          <Grid.Column style={{ maxWidth: 450 }}>
+          <Grid.Column style={{ maxWidth: 450, zIndex: 1 }}>
             <Form
               size="large"
               error
               onSubmit={this.props.handleSubmit(this.onSubmit)}
             >
-              <Segment stacked>
+              <Segment stacked >
                 <Field
                   name="city"
                   type="text"
