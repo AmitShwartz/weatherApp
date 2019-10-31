@@ -1,69 +1,58 @@
-//actions/index.js
-
 import axios from "axios";
-import { SEARCH_CITY, ADD_FAVORITE, DELETE_FAVORITE, UPDATE_CITY} from "./types";
+import { SEARCH_CITY, SEARCH_LOCATION, ADD_FAVORITE, DELETE_FAVORITE, UPDATE_CITY } from "./types";
 import history from "../history";
 
-const API_KEY = "WLrP8SA2RHTjED3NWdTfXOG1MbwpQVWf"
+// const API_KEY = "WLrP8SA2RHTjED3NWdTfXOG1MbwpQVWf"
+const API_KEY = "ohBYbco8wD0dNMLlcY6A7cAfwkpYXeAS";
 const BASE_URL = "https://dataservice.accuweather.com";
 
-//const generateUrl = path => `${BASE_URL}/${path}`;
+const getForecast = async (city) => {
+  const today = await axios.get(`${BASE_URL}/currentconditions/v1/${city.Key}`, {
+    params: {
+      apikey: API_KEY
+    }
+  })
+  const fiveDays = await axios.get(`${BASE_URL}/forecasts/v1/daily/5day/${city.Key}`, {
+    params: {
+      apikey: API_KEY,
+      metric: true
+    }
+  })
+  return { today: today.data[0], city: city, fiveDays: fiveDays.data }
+}
 
 export const searchByCity = ({ city }) => async dispatch => {
-  try {
-    const autocomplete = await axios.get(`${BASE_URL}/locations/v1/cities/autocomplete`, {
-      params: {
-        q: city,
-        apikey: API_KEY
-      }
-    });
-    const today = await axios.get(`${BASE_URL}/currentconditions/v1/${autocomplete.data[0].Key}`, {
-      params: {
-        apikey: API_KEY
-      }
-    })
-    const fiveDays = await axios.get(`${BASE_URL}/forecasts/v1/daily/5day/${autocomplete.data[0].Key}`, {
-      params: {
-        apikey: API_KEY,
-        metric: true
-      }
-    })
-    const newItem = { today:today.data[0], city: autocomplete.data[0], fiveDays: fiveDays.data };
+  const autocomplete = await axios.get(`${BASE_URL}/locations/v1/cities/autocomplete`, {
+    params: {
+      q: city,
+      apikey: API_KEY
+    }
+  });
+  const newItem = await getForecast(autocomplete.data[0]);
+  dispatch({ type: SEARCH_CITY, payload: newItem });
+};
 
-    dispatch({ type: SEARCH_CITY, payload: newItem });
-  } catch (e) {
-    console.error(e);
-  }
+export const searchByGeoposition = geoposition => async dispatch => {
+  const location = await axios.get(`${BASE_URL}/locations/v1/cities/geoposition/search`, {
+    params: {
+      q: geoposition,
+      apikey: API_KEY
+    }
+  });
+  const newItem = await getForecast(location.data);
+  dispatch({ type: SEARCH_LOCATION, payload: newItem });
 };
 
 export const searchByPos = city => async dispatch => {
-  try {
-    const today = await axios.get(`${BASE_URL}/currentconditions/v1/${city.Key}`, {
-      params: {
-        apikey: API_KEY
-      }
-    })
-    const fiveDays = await axios.get(`${BASE_URL}/forecasts/v1/daily/5day/${city.Key}`, {
-      params: {
-        apikey: API_KEY,
-        metric: true
-      }
-    })
-    const newItem = { today:today.data[0], city, fiveDays: fiveDays.data };
-
-    console.log(newItem);
-    dispatch({ type: UPDATE_CITY, payload: newItem });
-    history.push('/');
-  } catch (e) {
-    console.error(e);
-  }
+  const newItem = await getForecast(city);
+  dispatch({ type: UPDATE_CITY, payload: newItem });
+  history.push('/');
 };
 
-export const addFavorite= (favorite) =>async dispatch => {
-  console.log(favorite)
-    dispatch({ type: ADD_FAVORITE, payload: favorite });
+export const addFavorite = (favorite) => async dispatch => {
+  dispatch({ type: ADD_FAVORITE, payload: favorite });
 }
 
-export const deleteFavorite= (favorite_key) =>async dispatch => {
+export const deleteFavorite = (favorite_key) => async dispatch => {
   dispatch({ type: DELETE_FAVORITE, payload: favorite_key });
 }

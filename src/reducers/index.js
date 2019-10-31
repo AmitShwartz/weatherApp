@@ -1,5 +1,3 @@
-//reducers/index.js
-
 import { combineReducers } from 'redux';
 import { reducer as formReducer } from 'redux-form';
 import forecastReducer from './forecastReducer';

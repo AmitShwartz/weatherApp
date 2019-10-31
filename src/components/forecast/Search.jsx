@@ -1,28 +1,27 @@
-// components/forecast/Search.jsx
-
 import React from "react";
 import { connect } from "react-redux";
-import { searchByCity } from "../../actions";
+import { searchByCity, searchByGeoposition } from "../../actions";
 import { Field, reduxForm } from "redux-form";
+import { isUndefined } from 'lodash';
 import {
-  Button,
   Form,
   Grid,
   Header,
   Message,
   Segment,
-  Icon
+  Menu
 } from "semantic-ui-react";
 
-
 class Search extends React.Component {
+  state = {
+    active: 'City'
+  }
+  
   renderError = ({ error, touched }) => {
     if (touched && error) return <Message error={true} content={error} />;
   };
 
-  //called in <Field>(redux-form tag) and render the input by the props
-  //input is a field in the <Field> tag that handle the input behind the scenes
-  renderInput = ({ title, type, placeholder, input, meta }) => {
+  renderInput = ({ title, type, placeholder, input, meta, action, step }) => {
     const isError = meta.error && meta.touched ? true : false;
 
     return (
@@ -34,6 +33,8 @@ class Search extends React.Component {
           type={type}
           title={title}
           placeholder={placeholder}
+          step={step}
+          action={action}
           {...input}
         />
         {this.renderError(meta)}
@@ -41,16 +42,19 @@ class Search extends React.Component {
     );
   };
 
-  //called by props.handleSubmit(redux-form properties)
   onSubmit = formValues => {
-    this.props.searchByCity(formValues);
+    this.state.active==='City' ?
+      this.props.searchByCity(formValues) :
+      this.props.searchByGeoposition(`${formValues.latitude},${formValues.longitude}`)
   };
+
+  handleItemClick = (e, { name }) => this.setState({ active: name })
 
   render() {
     return (
       <>
         <Header as="h2" color="blue" textAlign="center">
-          search city forecast
+          Forecast
         </Header>
         <Grid
           textAlign="center"
@@ -58,24 +62,61 @@ class Search extends React.Component {
           verticalAlign="middle"
         >
           <Grid.Column style={{ maxWidth: 450, zIndex: 1 }}>
-            <Form
-              size="large"
-              error
-              onSubmit={this.props.handleSubmit(this.onSubmit)}
-            >
-              <Segment stacked >
-                <Field
-                  name="city"
-                  type="text"
-                  title="Enter city name only latters"
-                  placeholder="City"
-                  component={this.renderInput}
-                />
-                <Button color="blue" fluid size="large" type="submit">
-                  <Icon name="search"></Icon>Submit
-                </Button>
-              </Segment>
-            </Form>
+            <Menu attached='top' tabular>
+              <Menu.Item
+                name='City'
+                active={this.state.active === 'City'}
+                onClick={this.handleItemClick}
+              />
+              <Menu.Item
+                name='Geoposition'
+                active={this.state.active === 'Geoposition'}
+                onClick={this.handleItemClick}
+              />
+            </Menu>
+            <Segment attached='bottom'>
+              <Form
+                size="large"
+                error
+                onSubmit={this.props.handleSubmit(this.onSubmit)}
+              >
+                {this.state.active === 'City' ?
+                  <Field
+                    name="city"
+                    type="text"
+                    title="Search city forecast"
+                    placeholder="Search by city"
+                    action={{
+                      color: "blue",
+                      icon: "search"
+                    }}
+                    component={this.renderInput}
+                  /> :
+                  <>
+                    <Field
+                      name="latitude"
+                      type="number"
+                      title="latitude"
+                      placeholder="latitude"
+                      step="0.01"
+                      component={this.renderInput}
+                    />
+                    <Field
+                      name="longitude"
+                      type="number"
+                      title="longitude"
+                      placeholder="longitude"
+                      step="0.01"
+                      action={{
+                        color: "blue",
+                        icon: "search"
+                      }}
+                      component={this.renderInput}
+                    />
+                  </>
+                }
+              </Form>
+            </Segment>
           </Grid.Column>
         </Grid>
       </>
@@ -85,10 +126,14 @@ class Search extends React.Component {
 
 const validate = formValues => {
   const errors = {};
-
-  if (!formValues.city) errors.city = "You must enter a city";
-  if (!(/^([A-Za-z ]{0,})$/.test(formValues.city))) errors.city = "You must enter letters only";
-
+  if (!isUndefined(formValues.city)) {
+    if (!(/^([A-Za-z ]{0,})$/.test(formValues.city))) errors.city = "Valid search by english letters only";
+  } else {
+    if (!formValues.latitude) errors.latitude = "You must enter latitude";
+    if (!formValues.longitude) errors.longitude = "You must enter longitude";
+    if (formValues.latitude < -90 && formValues.latitude > 90) errors.latitude = "Valid latitude values are -90 - 90";
+    if (formValues.longitude < -180 && formValues.latitude > 180) errors.longitude = "Valid longitude values are -180 - 180";
+  }
   return errors;
 };
 
@@ -99,5 +144,8 @@ const formWarrped = reduxForm({
 
 export default connect(
   null,
-  { searchByCity }
+  {
+    searchByCity,
+    searchByGeoposition
+  }
 )(formWarrped);

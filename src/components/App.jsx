@@ -1,5 +1,3 @@
-//components/App.js
-
 import React from 'react';
 import { Router, Route } from "react-router-dom";
 import { connect } from 'react-redux'
@@ -11,8 +9,8 @@ import Favorites from './favorites/Favorites';
 import { searchByCity } from '../actions/index'
 
 class App extends React.Component {
-  componentWillMount(){
-    this.props.searchByCity({city:'tel aviv'})
+  componentDidMount(){
+   this.props.searchByCity({city:'tel aviv'})
   }
   render() {
     return (
@@ -26,7 +24,6 @@ class App extends React.Component {
       </div>
     );
   }
-
 }
 
 export default connect(
