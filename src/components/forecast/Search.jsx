@@ -131,8 +131,8 @@ const validate = formValues => {
   } else {
     if (!formValues.latitude) errors.latitude = "You must enter latitude";
     if (!formValues.longitude) errors.longitude = "You must enter longitude";
-    if (formValues.latitude < -90 && formValues.latitude > 90) errors.latitude = "Valid latitude values are -90 - 90";
-    if (formValues.longitude < -180 && formValues.latitude > 180) errors.longitude = "Valid longitude values are -180 - 180";
+    if (formValues.latitude < -90 || formValues.latitude > 90) errors.latitude = "Valid latitude values are -90 - 90";
+    if (formValues.longitude < -180 || formValues.latitude > 180) errors.longitude = "Valid longitude values are -180 - 180";
   }
   return errors;
 };
