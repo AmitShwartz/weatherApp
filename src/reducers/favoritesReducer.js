@@ -6,7 +6,6 @@ export default (state = {}, action) => {
     case ADD_FAVORITE: {
       return { ...state, ...mapKeys([action.payload], 'city.Key') }; 
     }
-
     case DELETE_FAVORITE:
       return omit(state, action.payload);
     default:
